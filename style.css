@@ -48,7 +48,7 @@ li a {
   font-size: 20px;
 }
 .post-group {
-  width: 700px;
+  max-width: 700px;
 }
 .content {
   display: flex;
@@ -70,4 +70,23 @@ li a {
   border-radius: 5px;
   margin: 5px;
   padding: 0px 10px;
+}
+
+@media screen and (max-width: 1100px) {
+  .featured {
+    max-width: 700px;
+    padding: 0px 15px;
+  }
+  .post-group {
+    max-width: 600%;
+  }
+  .pro-pic {
+    max-width: 600px;
+    display: block;
+  }
+  .content-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 }

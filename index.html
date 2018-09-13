@@ -2,61 +2,149 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css?family=Rubik|Lobster" rel="stylesheet">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link rel="stylesheet" href="style1.css">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <title>Humanity</title>
+    <script src="https://www.gstatic.com/firebasejs/5.4.2/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.css" />
+
+
   </head>
-  <body>
-    <nav>
-      <ul>
-        <li class="main-logo logo">Humanity</li>
-        <li class="logo">
-          <form action="index.html" method="post">
-              <input type="text" name="search" value="  Search"></input>
-              <button type="submit" Value=""><i class="fas fa-search"></i></button>
-          </form>
-        </li>
-        <li><a href="">Rohit</a></li>
-        <li><a href="">Home</a></li>
-        <li><a href="">Notifications</a></li>
-        <li><a href="">More</a></li>
-      </ul>
+  <body class="deep-purple-text">
+    <nav class="">
+      <div class="nav-wrapper deep-purple">
+        <a class="brand-logo margin">Humanity</a>
+        <a class="sidenav-trigger" data-target="nav"><i class="material-icons">menu</i></a>
+        <ul class="right white-text hide-on-med-and-down">
+        <!--  <li>
+            <form action="index.html" method="post">
+                <input type="text" name="search" value="  Search"></input>
+                <button type="submit" Value=""><i class="material-icons">search</i></button>
+            </form>
+          </li> -->
+          <li><a href="">Profile</a></li>
+          <li><a href="">Home</a></li>
+          <li><a href="">Notifications</a></li>
+          <li><a href="">More</a></li>
+        </ul>
+
+        <ul class="right white-text sidenav" id="nav">
+          <li><a href="">Profile</a></li>
+          <li><a href="">Home</a></li>
+          <li><a href="">Notifications</a></li>
+          <li><a href="">More</a></li>
+        </ul>
+      </div>
     </nav>
 
-    <div class="content">
-      <div class="post-group">
-        <div class="basic post">
-          <h3>Make a post</h3>
-          <form class="" action="index.html" method="post">
-            <textarea name="name" rows="8" cols="80"></textarea>
-            <input type="submit" name="post" value="Submit">
-          </form>
-        </div>
-        <div class="basic feed">
-          <h3>Your Feed</h3>
-          <div class="one-post" id="post1">
-            <p>{{ user + action }}</p>
-            <img v-bind:src="img_src" class="pro-pic" alt="Photo">
-            <div class="comments">
-              <div class="single-comment">
-                <h4>{{ comment1.user }}</h4>
-                <p>{{ comment1.content }}</p>
+
+    <div class="container" id="app">
+      <div class="row"></div>
+          <div class="post-group col s10 deep-purple lighten-5 padding">
+            <div class="post deep-purple lighten-5 post">
+              <h4 class="">Make a post</h4>
+              <form class="" @submit.prevent="savePost">
+                <textarea v-model="postText"name="name" rows="8" cols="80" required></textarea>
+                <input class="btn waves-effect waves-light deep-purple lighten-1 white-text" type="submit" name="post" value="Post">
+              </form>
+            </div>
+            <div class="basic feed">
+              <!-- post template -->
+              <div v-for="post in posts" class="post deep-purple lighten-4 flow-text">
+                <h5 class="flow-text"style="font-weight: bold">{{ post.user }} <span style="font-weight: normal">{{ post.action }}</span> </h5>
+                <img v-if="post.img" v-bind:src="post.img_src" class="responsive-img">
+                <p>{{ post.content }}</p>
+                <div class="comments">
+                  <div v-for="comment in post.comments" class="single-comment">
+                    <h6 style="font-weight: bold">{{ comment.user }}</h6>
+                    <p>{{ comment.content }}</p>
+                  </div>
+                </div>
               </div>
+              <!-- end post template -->
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="basic featured">
-        <h3>Featured</h3>
-      </div>
     </div>
 
-    <script src="vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script type="text/javascript">
 
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyD_IKeqCk44T0Dtm2T5iei_NNaXD1EZMTo",
+        authDomain: "humanity-a02e7.firebaseapp.com",
+        databaseURL: "https://humanity-a02e7.firebaseio.com",
+        projectId: "humanity-a02e7",
+        storageBucket: "humanity-a02e7.appspot.com",
+        messagingSenderId: "1068800296094"
+      };
+      firebase.initializeApp(config);
+      const db = firebase.firestore();
+
+      const settings = {timestampsInSnapshots: true};
+      db.settings(settings);
+
+      const dbRef = db.collection("posts");
+
+
+    // Vue
+    var post = new Vue ({
+      el: '#app',
+      data: {
+        posts: [],
+        postText: '',
+        postImage: '',
+        user: 'Rohit',
+      },
+
+      methods: {
+        savePost() {
+          if (this.postImage == '') {
+            dbRef.add({user: this.user, action: 'said', img_src: this.postImage, comments: '', content: this.postText, img: false})
+            //console.log(this.postText)
+          }
+          else {
+            dbRef.add({user: this.user, action: 'updated his profile picture', img_src: this.postImage, comments: '', content: this.postText, img: true})
+          }
+          this.postText = '';
+        }
+      },
+
+      created() {
+        dbRef.onSnapshot((querySnapshot) => {
+          this.posts = [];
+          querySnapshot.forEach((doc) => {
+            const data = {
+              'id': doc.id,
+              'user': doc.data().user,
+              'action': doc.data().action,
+              'img_src': doc.data().img_src,
+              'comments': doc.data().comments,
+              'content': doc.data().content,
+              'img': doc.data().img
+            }
+            this.posts.push(data);
+            //console.log(data);
+          });
+            //console.log(this.posts)
+        });
+
+      }
+
+    })
+    // materialize
+    //M.AutoInit();
+    document.addEventListener('DOMContentLoaded', () => {
+      var elems = document.querySelectorAll('.sidenav');
+      var options = '';
+      var instances = M.Sidenav.init(elems, options);
+    });
+
+
     </script>
+
   </body>
 </html>
